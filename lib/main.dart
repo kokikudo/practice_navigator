@@ -15,54 +15,142 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+
+      // 最初に表示するWidgetをアドレスで指定できる
+      initialRoute: "/subA",
+
+      // MaterialAppで遷移先のWidgetとアドレス的な文字列を登録
+      routes: <String, WidgetBuilder>{
+        "/home": (BuildContext context) => const MainPage(),
+        "/subA": (BuildContext context) => const SubPage(page: SubPages.pageA),
+        "/subB": (BuildContext context) => const SubPage(page: SubPages.pageB),
+        "/subC": (BuildContext context) => const SubPage(page: SubPages.pageC),
+        "/subD": (BuildContext context) => const SubPage(page: SubPages.pageD),
+      },
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+class MainPage extends StatelessWidget {
+  const MainPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: const Text("MainPage"),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
+      body: Container(
+        padding: const EdgeInsets.all(32.0),
+        child: Center(
+          child: ElevatedButton(
+            onPressed: () {
+              // アドレスを指定してPushする処理をボタンなどに付属する
+              // Navigator.of(context).pushNamed("/sub");
+              // MaterialPageRouteを使えばアドレスの指定は不要
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SubPage(page: SubPages.pageA),
+                ),
+              );
+            },
+            child: const Text("Present Sub Widget"),
+          ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+}
+
+enum SubPages { pageA, pageB, pageC, pageD }
+
+class SubPage extends StatelessWidget {
+  const SubPage({Key? key, required this.page}) : super(key: key);
+
+  final SubPages page;
+
+  @override
+  Widget build(BuildContext context) {
+    // SubPagesの値によって表示するページを帰る
+    Widget widget;
+    switch (page) {
+      case SubPages.pageA:
+        widget = Container(
+          color: Colors.orange,
+          child: Center(
+            child:
+                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              const Text(
+                "A",
+                style: TextStyle(color: Colors.white, fontSize: 100.0),
+              ),
+              ElevatedButton(
+                onPressed: () => {Navigator.pushNamed(context, "/subB")},
+                child: const Text("Bへすすむ"),
+              ),
+            ]),
+          ),
+        );
+        break;
+      case SubPages.pageB:
+        widget = Container(
+          color: Colors.blue,
+          child: Center(
+            child:
+                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              const Text(
+                "B",
+                style: TextStyle(color: Colors.white, fontSize: 100.0),
+              ),
+              ElevatedButton(
+                onPressed: () => {Navigator.pushNamed(context, "/subC")},
+                child: const Text("Cへすすむ"),
+              ),
+            ]),
+          ),
+        );
+        break;
+      case SubPages.pageC:
+        widget = Container(
+          color: Colors.red,
+          child: Center(
+            child:
+                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              const Text(
+                "C",
+                style: TextStyle(color: Colors.white, fontSize: 100.0),
+              ),
+              ElevatedButton(
+                onPressed: () => {Navigator.pushNamed(context, "/subD")},
+                child: const Text("Dへすすむ"),
+              ),
+            ]),
+          ),
+        );
+        break;
+      case SubPages.pageD:
+        widget = Container(
+          color: Colors.lime,
+          child: Center(
+            child:
+                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              const Text(
+                "D",
+                style: TextStyle(color: Colors.white, fontSize: 100.0),
+              ),
+              ElevatedButton(
+                onPressed: () =>
+                    {Navigator.popUntil(context, (route) => route.isFirst)},
+                child: const Text("Aへ戻る"),
+              ),
+            ]),
+          ),
+        );
+    }
+
+    return Scaffold(
+      body: widget,
     );
   }
 }
